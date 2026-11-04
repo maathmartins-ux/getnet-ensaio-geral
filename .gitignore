@@ -6,3 +6,5 @@ __pycache__/
 .ruff_cache/
 var/
 .claude/worktrees/
+
+# prova do sinal cedo da CI (04/11)
