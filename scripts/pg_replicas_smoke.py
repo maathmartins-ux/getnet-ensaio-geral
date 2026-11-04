@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import secrets
 import statistics
 import subprocess
 import sys
@@ -27,8 +28,10 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SECRET = "pg-replicas-smoke-secret-0123456789abcdef"
-OPERATOR = "pg-replicas-smoke-operator-0123456789"
+# gerados a cada execução, como no teste de réplicas: um segredo fixo no código é acusado pelo gitleaks do CI
+# (generic-api-key) na varredura do histórico inteiro (prova do kit no getnet-ensaio-geral, 04/11)
+SECRET = secrets.token_hex(24)
+OPERATOR = secrets.token_hex(18)
 
 
 def call(port: int, method: str, path: str, headers: dict, body: dict | None = None) -> tuple[int, dict, str]:

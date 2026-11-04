@@ -1532,7 +1532,8 @@ def run_replay(split: str | None = None, tolerance: float | None = None, workers
 
     tolerance = REPLAY_TOLERANCE if tolerance is None else tolerance
     summary: dict = {"tolerance_pp": tolerance, "splits": {}, "passed": True}
-    files = [f for f in cassette_files(cassettes_dir()) if not split or f.name.split(".")[0] == split]
+    wanted = {s for s in (split or "").split(",") if s}  # "a,b": vários splits num processo (pedaços do CI)
+    files = [f for f in cassette_files(cassettes_dir()) if not wanted or f.name.split(".")[0] in wanted]
     if not files:
         summary.update(passed=False, reason=f"nenhum cassete em {cassettes_dir()}: grave com --live")
     for f in files:

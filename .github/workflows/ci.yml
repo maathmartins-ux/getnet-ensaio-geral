@@ -27,13 +27,14 @@ jobs:
     name: check (${{ matrix.part }})
     runs-on: ubuntu-24.04
     timeout-minutes: 40  # job travado falha e avisa, em vez de segurar o relógio
-    # 3 partes em paralelo, cada uma na sua máquina: em fila (ensaios 13 e 14) o check levava 15–20 min (replay das
-    # gravações ~7,5 min, gate ~4, docker ~2,5) e o resultado do último commit chegava depois do T+59, sem tempo de
-    # reagir. A união das 3 é o `check.py --docker --scale` inteiro (tests/test_ci_check_parts.py).
+    # Partes em paralelo, cada uma na sua máquina: em fila o check levou 14,7 min no ensaio 13 e 27 min no 14 (replay
+    # das gravações 1121 s, gate 273 s, docker ~150 s) e o resultado do último commit chegava depois do T+59, sem
+    # tempo de reagir. O replay vai em 4 pedaços de tamanho parecido (check.replay_shards). A união das partes é o
+    # `check.py --docker --scale` inteiro (tests/test_ci_check_parts.py).
     strategy:
       fail-fast: false
       matrix:
-        part: [core, replay, docker]
+        part: [core, docker, "replay:1/4", "replay:2/4", "replay:3/4", "replay:4/4"]
     # o eval do gate usa o buscador escolhido (padrão do kit: denso + cross): sem fastembed e modelos ele cairia no
     # BM25 e o CI mediria outro produto (medido: 3/10 oficiais no fallback contra 9/10 com o buscador do kit)
     env:

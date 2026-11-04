@@ -151,6 +151,13 @@ def calibrate_rerank_gate(pos: list[float], neg: list[float]) -> dict | None:
             best = (key, {"min_rerank": round(t, 4), "pos_answered": round(a, 3), "neg_refused": round(b, 3),
                           "meets_floor": key[0], "pos_ci": rate_ci(sum(x >= t for x in pos), len(pos)),
                           "neg_ci": rate_ci(sum(x < t for x in neg), len(neg))})
+    # O limiar fica no MEIO do vão entre a nota escolhida e a nota observada logo abaixo (a mesma divisão das
+    # perguntas de calibração), nunca em cima de uma nota: a nota do ONNX varia na 4ª casa entre CPUs, e com o limiar
+    # igual à nota de uma pergunta ela trocava de lado na máquina do CI (ensaio 14: o eval offline do CI deu replan
+    # 65% contra 55% commitado, com o mesmo código, e o check ficou vermelho no commit final).
+    t = best[0][3] * -1
+    below = [x for x in [*pos, *neg] if x < t]
+    best[1]["min_rerank"] = round((t + max(below)) / 2, 6) if below else round(t - 0.01, 6)
     return {**best[1], "positives": len(pos), "negatives": len(neg), "neg_refusal_min": NEG_REFUSAL_MIN,
             "enough": len(neg) >= 15}
 

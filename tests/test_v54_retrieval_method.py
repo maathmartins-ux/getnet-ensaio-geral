@@ -84,7 +84,8 @@ def test_agent_path_rerank_note_is_minus_infinity_only_when_refused():
     assert retrieval_eval._note([rag.Hit(rag.Doc("d", "t", "u", "x"), 1.0)]) is None  # buscador sem rerank
     # sem rerank no caminho do agente: as recusadas (-inf) sozinhas não viram separação pela nota
     assert retrieval_eval.separation([[(0.0, float("-inf"), True)]], [[(0.0, float("-inf"), False)]]) is None
-    assert retrieval_eval.calibrate_rerank_gate([1.0], [-1.0])["min_rerank"] == 1.0
+    # o limiar fica no meio do vão entre as notas vizinhas, não em cima da nota (ensaio 14: CI × máquina da sessão)
+    assert retrieval_eval.calibrate_rerank_gate([1.0], [-1.0])["min_rerank"] == 0.0
 
 
 def test_judge_validation_rule_is_fixed_before_measuring():
